@@ -44,3 +44,9 @@ sources:
 
         - name: IN_STOCK
           identifier: SRC_STOCK
+          
+        - name: IN_TEST_KEK
+          identifier: SRC_TEST_KEK
+          
+        - name: IN_TEST_WAY
+          identifier: SRC_TEST_WAY

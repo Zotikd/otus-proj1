@@ -28,18 +28,25 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
+vars:
+  load_date: 'current_timestamp'
+  
+  
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
-  otus-proj1:
+  otus_project:
     +materialized: table
     stg:
       +materialized: table
       +tags: ['stg']
     dds:
-      +materialized: table
+      +materialized: incremental
       +tags: ['dds']
+    pre_mart:
+      +materialized: table
+      +tags: ['pre_mart']
     mart:
       +materialized: table
       +tags: ['mart']

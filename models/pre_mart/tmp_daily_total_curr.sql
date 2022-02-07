@@ -1,0 +1,15 @@
+{{
+    config (
+      engine='MergeTree()',
+      order_by=['PRODUCT_ID', 'STORE_LOCATION_ID', 'DATE_CURR'],
+	  unique_key=['PRODUCT_ID', 'STORE_LOCATION_ID', 'DATE_CURR']
+    )
+}}
+
+SELECT T1.STORE_LOCATION_ID as STORE_LOCATION_ID
+	,toStartOfMonth(T1.DATE)as DATE_CURR
+	,T1.PRODUCT_ID as PRODUCT_ID
+	,COUNT(1) as CNT_ORD_ON_DAY
+FROM otusproj.tmp_daily_pos AS T1
+WHERE T1.PERIOD_TYPE = 'CURR' 
+GROUP BY T1.STORE_LOCATION_ID,T1.PRODUCT_ID, DATE_CURR

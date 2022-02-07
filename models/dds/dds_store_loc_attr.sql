@@ -1,0 +1,38 @@
+{{
+    config (
+      engine='MergeTree()',
+      order_by=['STORE_LOCATION_ID', 'STORE_ATTR_CD', 'CREATED_DTTM'],
+	  unique_key=['STORE_LOCATION_ID', 'STORE_ATTR_CD', 'CREATED_DTTM']
+    )
+}}
+
+{% if is_incremental() %}
+
+  with tmp as (
+    select 	if(t1.STORE_LOCATION_ID>t2.STORE_LOCATION_ID,t1.STORE_LOCATION_ID,t2.STORE_LOCATION_ID) as STORE_LOCATION_ID,
+			if(t1.STORE_ATTR_CD>t2.STORE_ATTR_CD,t1.STORE_ATTR_CD,t2.STORE_ATTR_CD) as STORE_ATTR_CD,
+			if(t1.STORE_ATTR_NM>t2.STORE_ATTR_NM,t1.STORE_ATTR_NM,t2.STORE_ATTR_NM) as STORE_ATTR_NM,
+			if(t1.STORE_ATTR_VL>t2.STORE_ATTR_VL,t1.STORE_ATTR_VL,t2.STORE_ATTR_VL) as STORE_ATTR_VL,
+			if(t1.CREATED_DTTM>t2.CREATED_DTTM,t1.CREATED_DTTM,t2.CREATED_DTTM) as CREATED_DTTM,
+			if(t1.MODIFIED_DTTM>t2.MODIFIED_DTTM,t1.MODIFIED_DTTM,t2.MODIFIED_DTTM) as MODIFIED_DTTM,
+			if(t1.CREATED_PCS_ID>t2.CREATED_PCS_ID,t1.CREATED_PCS_ID,t2.CREATED_PCS_ID) as CREATED_PCS_ID,
+			if(t1.MODIFIED_PCS_ID>t2.MODIFIED_PCS_ID,t1.MODIFIED_PCS_ID,t2.MODIFIED_PCS_ID) as MODIFIED_PCS_ID,
+			if(t1.HASH_VAL>t2.HASH_VAL,t1.HASH_VAL,t2.HASH_VAL) as HASH_VAL
+	from {{ ref('stg_store_loc_attr') }} as t1 
+	full join {{ this }} as t2
+	on t1.STORE_LOCATION_ID = t2.STORE_LOCATION_ID 
+	and t1.STORE_ATTR_CD = t2.STORE_ATTR_CD
+	and t1.CREATED_DTTM = t2.CREATED_DTTM
+  )
+
+{% else %}
+
+  with tmp as (
+    select *
+	from {{ ref('stg_store_loc_attr') }} 
+)
+
+{% endif %}
+
+select *
+from tmp
